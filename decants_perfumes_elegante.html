@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Essenza Decants</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;transition:all .3s ease}
+body{font-family:'Inter',sans-serif;line-height:1.6}
+
+/* ===== TEMAS ===== */
+body.arabes{background:#0f0f0f;color:#e8d8b0}
+body.arabes .card{background:#1a1a1a;color:#e8d8b0}
+body.arabes .btn{border:1px solid #d4af37;color:#d4af37}
+body.arabes .btn:hover{background:#d4af37;color:#000}
+
+body.disenador{background:#f4f1ea;color:#111}
+body.disenador .card{background:#ffffff;color:#111}
+body.disenador .btn{border:1px solid #111;color:#111}
+body.disenador .btn:hover{background:#111;color:#fff}
+
+header{padding:60px 20px;text-align:center}
+h1{font-family:'Playfair Display',serif;font-size:2.8rem;letter-spacing:2px}
+nav{margin-top:25px}
+nav button{margin:5px;padding:10px 25px;border:none;cursor:pointer;font-weight:500}
+
+section{padding:60px 10%}
+.section-title{text-align:center;margin-bottom:40px;font-family:'Playfair Display',serif;font-size:2rem}
+
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:30px}
+.card{padding:20px;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.08);text-align:center}
+.card img{width:100%;height:200px;object-fit:cover;border-radius:10px;margin-bottom:15px}
+.card h3{font-family:'Playfair Display',serif;margin-bottom:10px}
+.price{margin:10px 0;font-weight:600}
+select{padding:8px;margin-top:5px;width:100%}
+
+.btn{display:inline-block;margin-top:10px;padding:10px 20px;text-decoration:none;font-size:.9rem;cursor:pointer;background:none}
+
+#cart{position:fixed;right:20px;bottom:20px;padding:15px 20px;border-radius:50px;font-weight:bold;cursor:pointer}
+
+#checkout{position:fixed;left:20px;bottom:20px;padding:15px 20px;border-radius:50px;font-weight:bold;cursor:pointer}
+
+footer{text-align:center;padding:40px 20px;font-size:.9rem;opacity:.7}
+
+</style>
+</head>
+
+<body class="arabes">
+
+<header>
+<h1>ESSENZA DECANTS</h1>
+<p>Decants exclusivos de perfumes árabes y de diseñador</p>
+<nav>
+<button onclick="cambiarTema('arabes')">Perfumes Árabes</button>
+<button onclick="cambiarTema('disenador')">Perfumes de Diseñador</button>
+</nav>
+</header>
+
+<section>
+<h2 class="section-title" id="tituloSeccion">Perfumes Árabes</h2>
+<div class="products" id="productos"></div>
+</section>
+
+<button id="cart" onclick="verCarrito()">🛒 Carrito (0)</button>
+<button id="checkout" onclick="pagarMP()">💳 Pagar</button>
+
+<footer>
+Envíos a todo México · Pagos con MercadoPago · Pedidos por WhatsApp
+</footer>
+
+<script>
+
+const tamanos={
+"5ml":0,
+"10ml":80,
+"20ml":150
+}
+
+const productosArabes=[
+{name:"Lattafa Khamrah",base:150,img:"https://images.unsplash.com/photo-1594035910387-fea47794261f"},
+{name:"Afnan 9PM",base:170,img:"https://images.unsplash.com/photo-1615634262417-4b0c3b5f9a1e"},
+{name:"Maison Alhambra Amber",base:160,img:"https://images.unsplash.com/photo-1585386959984-a4155224a1ad"}
+]
+
+const productosDisenador=[
+{name:"Dior Sauvage",base:220,img:"https://images.unsplash.com/photo-1600180758890-6b94519a8ba6"},
+{name:"Bleu de Chanel",base:230,img:"https://images.unsplash.com/photo-1595429035839-c99c298ffdde"},
+{name:"YSL Y EDP",base:210,img:"https://images.unsplash.com/photo-1615634262329-91d5f1a4bb7a"}
+]
+
+let carrito=[]
+let envio=120
+
+function cambiarTema(tipo){
+document.body.className=tipo
+const contenedor=document.getElementById('productos')
+const titulo=document.getElementById('tituloSeccion')
+contenedor.innerHTML=""
+
+let lista= tipo==='arabes'?productosArabes:productosDisenador
+
+titulo.innerText= tipo==='arabes'?"Perfumes Árabes":"Perfumes de Diseñador"
+
+lista.forEach((p,i)=>{
+contenedor.innerHTML+=`
+<div class="card">
+<img src="${p.img}" alt="${p.name}">
+<h3>${p.name}</h3>
+<select id="size${i}">
+<option value="5ml">5ml</option>
+<option value="10ml">10ml</option>
+<option value="20ml">20ml</option>
+</select>
+<div class="price">Desde $${p.base} MXN</div>
+<button class="btn" onclick="agregarCarrito('${p.name}',${p.base},${i})">Agregar al carrito</button>
+</div>`
+})
+}
+
+function agregarCarrito(nombre,base,index){
+let size=document.getElementById('size'+index).value
+let precio=base+tamanos[size]
+carrito.push({nombre,size,precio})
+document.getElementById('cart').innerText=`🛒 Carrito (${carrito.length})`
+}
+
+function verCarrito(){
+if(carrito.length===0){alert("Tu carrito está vacío");return}
+let mensaje="Hola, quiero comprar:%0A"
+let total=0
+carrito.forEach(p=>{
+mensaje+=`- ${p.nombre} ${p.size} $${p.precio}%0A`
+total+=p.precio
+})
+mensaje+=`Envío: $${envio}%0A`
+total+=envio
+mensaje+=`Total: $${total} MXN`
+window.open(`https://wa.me/5210000000000?text=${mensaje}`,'_blank')
+}
+
+function pagarMP(){
+if(carrito.length===0){alert("Tu carrito está vacío");return}
+alert("Aquí conectarías tu link de MercadoPago. Reemplaza esta función con tu link real.")
+window.open("https://www.mercadopago.com.mx/","_blank")
+}
+
+cambiarTema('arabes')
+
+</script>
+
+</body>
+</html>
